@@ -42,7 +42,7 @@ func main() {
 		mid = c
 		max = b
 	}
-	fmt.Println(min, mid, max)
+	// fmt.Println(min, mid, max)
 	fmt.Println("Pазница между самой большой и самой маленькой зарплатой:", max-min)
 	fmt.Println("Средняя зарплата:", (max+mid+min)/3)
 }
