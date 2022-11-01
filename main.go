@@ -1,30 +1,25 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
-	fmt.Println("Введите IQ космонавта  1")
-	var a int
-	fmt.Scan(&a)
-	fmt.Println("Введите IQ космонавта  2:")
-	var b int
-	fmt.Scan(&b)
-	fmt.Println("Введите IQ космонавта  3:")
-	var c int
-	fmt.Scan(&c)
-	var max int
-	if a < c && b < c {
-		max = c
-		fmt.Print("Капитан коробля стал космонафт №3 с IQ: ", max)
-	} else if b < a && c < a {
-		max = a
-		fmt.Print("Капитан коробля стал космонафт №1 с IQ: ", max)
-	} else if c < b && a < b {
-		max = b
-		fmt.Print("Капитан коробля стал космонафт №2 с IQ: ", max)
+	var x, count int
+	count = 2
+	x = -10
+	for {
+		if count%2 == 0 {
+			x++
+			fmt.Println(x)
+		} else {
+			x--
+			fmt.Println(x)
+		}
+		if x == 10 || x == -10 {
+			count++
+		}
+		if x == 0 {
+			fmt.Println("Вы перешли КПП")
+		}
 	}
-	// fmt.Println(min, mid, max)
 
 }
