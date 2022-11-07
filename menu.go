@@ -1,18 +1,28 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func main() {
-	fmt.Println("Введите сумму снятия со счёта:")
-	var check_out int
-	fmt.Scan(&check_out)
-	if check_out%100 == 0 && check_out <= 100000 {
-		fmt.Println("Операция успешно выполнена")
-		fmt.Println("Вы сняли ", check_out, "рублей")
-	} else if check_out%100 != 0 {
-		fmt.Println("В банкомате доступны только купюры номиналом по 100 рублей")
-	} else if check_out > 100000 {
-		fmt.Println("Превышен лимит снятия")
+	fmt.Println("Введите высоту елочки")
+	var hight, count int
+	fmt.Scan(&hight)
+	star := "*"
+	space := " "
+	n := hight
+	for i := 1; i <= hight; i++ {
+		n--
+		if i == 1 {
+			line1 := strings.Repeat(space, n) + strings.Repeat(star, i)
+			fmt.Println(line1)
+			count++
+		}
+		if i > 1 {
+			line1 := strings.Repeat(space, n) + strings.Repeat(star, i+count)
+			fmt.Println(line1)
+			count++
+		}
 	}
-
 }
