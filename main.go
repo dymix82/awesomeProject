@@ -37,10 +37,15 @@ func lemonadeChange(bills []int) bool {
 			}
 		case 20:
 			twenty++
-			if ten >= 1 && five >= 1 {
+			if five >= 3 {
+				five = five - 3
+				status = true
+				continue
+			} else if ten >= 1 && five >= 1 {
 				ten--
 				five--
 				status = true
+
 			} else {
 				status = false
 				goto label
