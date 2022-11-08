@@ -1,28 +1,54 @@
 package main
 
-import (
-	"fmt"
-	"strings"
-)
+import "fmt"
 
 func main() {
-	fmt.Println("Введите высоту елочки")
-	var hight, count int
-	fmt.Scan(&hight)
-	star := "*"
-	space := " "
-	n := hight
-	for i := 1; i <= hight; i++ {
-		n--
-		if i == 1 {
-			line1 := strings.Repeat(space, n) + strings.Repeat(star, i)
-			fmt.Println(line1)
-			count++
-		}
-		if i > 1 {
-			line1 := strings.Repeat(space, n) + strings.Repeat(star, i+count)
-			fmt.Println(line1)
-			count++
+	fmt.Println("введите количество покупателей")
+	var n int
+	var five, ten, twenty int
+	var status bool
+	fmt.Scan(&n)
+	bills := make([]int, n)
+	fmt.Println("введите их купюры 5,10 или 20")
+	for i := 0; i < n; i++ {
+		fmt.Scan(&bills[i])
+
+	}
+	//	fmt.Println(bills)
+	for i := range bills {
+		a := bills[i]
+		//		fmt.Println(a)
+		switch a {
+		case 5:
+			five++
+			status = true
+		case 10:
+			ten++
+			if five >= 1 {
+				five--
+				status = true
+			} else {
+				status = false
+				goto label
+			}
+		case 20:
+			twenty++
+			if ten >= 1 && five >= 1 {
+				ten--
+				five--
+				status = true
+			} else {
+				status = false
+				goto label
+			}
+		default:
+			fmt.Println("Введите только купюры 5,10,20")
+			status = false
+			goto label
 		}
 	}
+label:
+	fmt.Println("расчет сдачи")
+	fmt.Println("Ввод:", bills)
+	fmt.Println(status)
 }

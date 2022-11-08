@@ -1,25 +1,62 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
-	var n1, n2, n3, n4, n5, n6, result int
-	for i := 100000; i <= 999999; i++ {
-		n1 = i / 100000
-		n2 = (i / 10000) % 10
-		n3 = (i / 1000) % 10
-		n4 = (i / 100) % 10
-		n5 = (i / 10) % 10
-		n6 = i % 10
-		//fmt.Println(n1,n2,n3,n4,n5,n6)
-		if (n1 != n6) && (n2 != n5) && (n3 != n4) {
-			continue
-		}
-		result++
+	fmt.Println("расчет сдачи")
+	fmt.Println("введите количество покупателей")
+	var n int
+	fmt.Scan(&n)
+	bills := make([]int, n)
+	fmt.Println("введите их купюры 5,10 или 20")
+	for i := 0; i < n; i++ {
+		fmt.Scan(&bills[i])
 	}
-	fmt.Println("Количество зеркальных билетов среди всех шестизначных номеров")
-	fmt.Println("от 100000 до 999999:")
-	fmt.Println(result)
+	fmt.Println(bills)
+	a := lemonadeChange(bills)
+	fmt.Println(a)
+}
+func lemonadeChange(bills []int) bool {
+	var five, ten, twenty int
+	var status bool = false
+	for i := range bills {
+		a := bills[i]
+		//		fmt.Println(a)
+		switch a {
+		case 5:
+			five++
+			status = true
+		case 10:
+			ten++
+			if five >= 1 {
+				five--
+				status = true
+			} else {
+				status = false
+				goto label
+			}
+		case 20:
+			twenty++
+			if ten >= 1 && five >= 1 {
+				ten--
+				five--
+				status = true
+			} else {
+				status = false
+				goto label
+			}
+		default:
+			status = false
+			goto label
+		}
+	}
+
+	switch status {
+	case status == true:
+		return true
+	case status == false:
+		return false
+	}
+label:
+	return false
 }
