@@ -6,20 +6,22 @@ package main
 
 import "fmt"
 
-var input int
+var (
+	a = 10
+	b = 20
+	c = 30
+)
 
 func main() {
-	fmt.Println("----------\nВведите число\n----------")
-	fmt.Scan(&input)
-	fmt.Println(thirdfunc(input))
+	fmt.Println(firstfunc(secondfunc(thirdfunc(10))))
 }
 
-func firstfunc(a int) int {
-	return a + input
+func firstfunc(x int) int {
+	return a + b + x
 }
-func secondfunc(b int) int {
-	return firstfunc(b) + input
+func secondfunc(y int) int {
+	return c + b + y
 }
-func thirdfunc(c int) int {
-	return secondfunc(c) + input
+func thirdfunc(z int) int {
+	return c + a + z
 }

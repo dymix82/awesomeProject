@@ -12,8 +12,8 @@ import (
 
 func viceversa(a [10]int) (b [10]int) { // Функция реверсирующая массив
 	var lenght = len(a)
-	for k := 0; k < lenght; k++ {
-		b[k] = a[(lenght-1)-k]
+	for i, r := range a {
+		b[(lenght-1)-i] = r
 	}
 	return
 }
