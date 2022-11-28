@@ -45,7 +45,7 @@ func fillB() [rowsB][colsB]int { // Функция наполнения матр
 	}
 	return A
 }
-func matrixmultiply() [rowsA][colsB]int {
+func MatrixMultiply() [rowsA][colsB]int { // Функция умнажения матрицы А на B
 	matrixC := [rowsA][colsB]int{}
 	for i := 0; i < rowsA; i++ {
 		for j := 0; j < colsB; j++ {
@@ -68,7 +68,7 @@ func main() {
 		fmt.Println(matrixB[i])
 	}
 	fmt.Println("Результат умножения Матрицы А и B:")
-	matrixC := matrixmultiply()  // Применяем функцию умножения матриц
+	matrixC := MatrixMultiply()  // Применяем функцию умножения матриц
 	for i := 0; i < rowsA; i++ { // Циклом печатаем получившуюся матрицу в удобном виде
 		fmt.Println(matrixC[i])
 	}
