@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func rands(a int) (x int) { // Функция наполнения массива
+func rands() (x int) { // Функция наполнения массива
 	rand.Seed(time.Now().UnixNano())
 	time.Sleep(2)
 	x = rand.Intn(20)
@@ -22,18 +22,10 @@ func main() {
 	b := make([]int, 4, 4)
 
 	for k := 0; k < len(a); k++ {
-		rand.Seed(time.Now().UnixNano())
-		time.Sleep(2)
-		x := rand.Intn(20)
-		//		fmt.Println(x)
-		a[k] = x
+		a[k] = rands()
 	}
 	for k := 0; k < len(b); k++ {
-		rand.Seed(time.Now().UnixNano())
-		time.Sleep(2)
-		x := rand.Intn(20)
-		//		fmt.Println(x)
-		b[k] = x
+		b[k] = rands()
 	}
 	fmt.Printf("Исходные массивы: %v и %v \n", a, b)
 	sort.Ints(a)
