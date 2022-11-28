@@ -45,7 +45,7 @@ func fillB() [rowsB][colsB]int { // Функция наполнения матр
 	}
 	return A
 }
-func MatrixMultiply() [rowsA][colsB]int { // Функция умнажения матрицы А на B
+func MatrixMultiply() [rowsA][colsB]int { // Функция умножения матрицы А на B
 	matrixC := [rowsA][colsB]int{}
 	for i := 0; i < rowsA; i++ {
 		for j := 0; j < colsB; j++ {
