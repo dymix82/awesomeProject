@@ -33,7 +33,7 @@ func main() {
 	matrix := [size][size]int{}
 	matrix = fill()
 	fmt.Println("Ищем определитель матрицы:")
-	for i := 0; i < size; i++ {
+	for i := 0; i < size; i++ { // Циклом печатаем матрицу 3 на 3 в удобном виде
 		fmt.Println(matrix[i])
 	}
 	Det := determinat(matrix)
