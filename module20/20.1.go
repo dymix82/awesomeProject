@@ -36,6 +36,6 @@ func main() {
 	for i := 0; i < size; i++ { // Циклом печатаем матрицу 3 на 3 в удобном виде
 		fmt.Println(matrix[i])
 	}
-	Det := determinat(matrix)
-	fmt.Printf("Определитель равен %d", Det)
+	Det := determinat(matrix)                // Присваиваем значение определителя матрицы
+	fmt.Printf("Определитель равен %d", Det) // Выводим результат
 }
