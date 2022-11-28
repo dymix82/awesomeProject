@@ -24,7 +24,7 @@ func fill() [size][size]int { // Функция наполнения матри�
 	}
 	return A
 }
-func determinat(A [size][size]int) int {
+func determinat(A [size][size]int) int { // Вычисляем дискриминант
 	D := (A[0][0] * A[1][1] * A[2][2]) - (A[0][0] * A[1][2] * A[2][1]) - (A[0][1] * A[1][0] * A[2][2]) + (A[0][1] * A[1][2] * A[2][0]) + (A[0][2] * A[1][0] * A[2][1]) - (A[0][2] * A[1][1] * A[2][0])
 	return D
 }
@@ -32,9 +32,10 @@ func determinat(A [size][size]int) int {
 func main() {
 	matrix := [size][size]int{}
 	matrix = fill()
+	fmt.Println("Ищем определитель матрицы:")
 	for i := 0; i < size; i++ {
 		fmt.Println(matrix[i])
 	}
 	Det := determinat(matrix)
-	fmt.Println(Det)
+	fmt.Printf("Определитель равен %d", Det)
 }
