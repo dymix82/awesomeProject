@@ -7,3 +7,16 @@
 //Тела функций могут быть любыми, но главное, чтобы все три выполняли разное действие.
 
 package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	anon(4, 3, func(x, y int) int { return x * y })
+	anon(3, 4, func(x, y int) int { return x - y })
+	anon(4, 3, func(x, y int) int { return x / y })
+}
+func anon(x int, y int, A func(x, y int) int) {
+	defer fmt.Println(A(x, y))
+}
