@@ -10,6 +10,7 @@ S = 2 × x + y ^ 2 − 3/z, где x — int16, y — uint8, a z — float32.
 21.1.go  
 
 При   	
+
 x = 4                                            
 y = 4                                            
 z = 1.56         
