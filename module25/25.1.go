@@ -13,5 +13,4 @@ func main() {
 	flag.StringVar(&substr, "substr", "null", "substr")
 	flag.Parse()
 	fmt.Println(strings.Contains(str, substr))
-
 }
