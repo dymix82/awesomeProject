@@ -16,3 +16,4 @@ go run main.go --str "строка для поиска" --substr "поиска"
 ### Файл
 25.1.go
 ### Решение
+![img.png](img.png)
