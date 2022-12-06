@@ -16,32 +16,38 @@ import (
 
 const size = 6
 
-var array1 [size]int
+func fill(a []int) (b []int) { // Функция наполнения массива
 
-func fill(a [size]int) (b [size]int) { // Функция наполнения массива
-	for k := 0; k < len(a); k++ {
-		rand.Seed(time.Now().UnixNano())
-		time.Sleep(2)
-		x := rand.Intn(20)
-		//		fmt.Println(x)
-		b[k] = x
-	}
 	return
 }
-func BubbleSort(a [size]int) [size]int {
+func BubbleSort(a []int) []int {
 	for i := 0; i < size-1; i++ {
-		for j := 0; j < len(a)-i-1; j++ {
+		for j := 0; j < size-i-1; j++ {
 			if a[j] > a[j+1] {
 				a[j], a[j+1] = a[j+1], a[j]
 			}
 		}
 	}
+	//	sort.Sort(sort.Reverse(sort.IntSlice(a)))
+	con := 0
+	for i := 0; i < (size)/2; i++ {
+		con = a[size-1-i]
+		a[size-1-i] = a[i]
+		a[i] = con
+	}
 	return a
 }
 
 func main() {
-	array1 = fill(array1)
-	array1_sorted := BubbleSort(array1)
+	array1 := make([]int, size)
+	for k := 0; k < len(array1); k++ {
+		rand.Seed(time.Now().UnixNano())
+		time.Sleep(2)
+		x := rand.Intn(20)
+		//		fmt.Println(x)
+		array1[k] = x
+	}
 	fmt.Println("Вводный массив: ", array1)
+	array1_sorted := BubbleSort(array1)
 	fmt.Println("Отсортированный массив:", array1_sorted)
 }
