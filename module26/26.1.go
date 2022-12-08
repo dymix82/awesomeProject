@@ -11,6 +11,7 @@ func main() {
 	var file1 string
 	var file2 string
 	var file3 string
+	var Result string
 	flag.StringVar(&file1, "file1", "null", "str")
 	flag.StringVar(&file2, "file2", "null", "substr")
 	flag.StringVar(&file3, "result", "null", "substr")
@@ -23,9 +24,12 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
-	ResArray := []string{string(strFile1), string(strFile2)}
-	Result := strings.Join(ResArray, "\n")
-
+	if file2 != "null " {
+		ResArray := []string{string(strFile1), string(strFile2)}
+		Result = strings.Join(ResArray, "\n")
+	} else {
+		Result = string(strFile1)
+	}
 	if file3 != "null" {
 		f, err := os.Create(file3)
 		if err != nil {
