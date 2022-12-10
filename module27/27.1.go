@@ -33,6 +33,7 @@ func main() {
 		text = strings.TrimSpace(text)
 		s := strings.Split(text, " ")
 		if err == io.EOF { // Выходим и печатаем список студентов
+			fmt.Println("Студенты из хранилища:")
 			for _, value := range StudentName {
 				fmt.Println(value.name, value.age, value.grade)
 			}
