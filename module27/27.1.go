@@ -17,14 +17,14 @@ type Student struct {
 	grade int
 }
 
-func newStudent(name string, age int, grade int) Student {
+func newStudent(name string, age int, grade int) *Student {
 	p := Student{name: name,
 		age:   age,
 		grade: grade}
-	return p
+	return &p
 }
 func main() {
-	StudentName := make(map[int]Student)
+	StudentName := make(map[int]*Student)
 	fmt.Println("Введите студенов построчно в формате имя возраст оценку через пробел, оценку от 1 до 5")
 	index := 1
 	for {
@@ -43,7 +43,7 @@ func main() {
 			continue
 		}
 		age, err2 := strconv.Atoi(s[1])
-		if err2 != nil {
+		if err2 != nil || age <= 0 {
 			fmt.Println("Ошибка при вводе возроста, введите строку еще раз")
 			fmt.Println("Введите студенов построчно в формате имя возраст оценку через пробел, оценку от 1 до 5")
 			continue
