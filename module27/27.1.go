@@ -33,8 +33,14 @@ func main() {
 		text = strings.TrimSpace(text)
 		s := strings.Split(text, " ")
 		if err == io.EOF {
-			fmt.Println(StudentName)
+			for _, value := range StudentName {
+				fmt.Println(value.name, value.age, value.grade)
+			}
 			break
+		}
+		if len(s) != 3 {
+			fmt.Println("Ошибка при вводе, попробуйте еще раз")
+			continue
 		}
 		age, err2 := strconv.Atoi(s[1])
 		if err2 != nil {
@@ -53,8 +59,6 @@ func main() {
 			fmt.Println("Введите студенов построчно в формате имя возраст оценку через пробел, оценку от 1 до 5")
 			continue
 		}
-		//	print(s[2])
-		//	sp := Student{name: s[0], age: age, grade: grade}
 		StudentName[index] = newStudent(s[0], age, grade)
 		fmt.Println("Студент добавлен")
 		index++
