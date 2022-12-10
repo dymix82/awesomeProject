@@ -30,16 +30,11 @@ func main() {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		text, err := reader.ReadString('\n')
-		text = strings.TrimSuffix(text, "\n")
-
-		//	fmt.Println(text)
+		text = strings.TrimSpace(text)
 		s := strings.Split(text, " ")
-		//	for _, v := range s {
-		//		fmt.Println(v)
-		//	}
 		if err == io.EOF {
 			fmt.Println(StudentName)
-			goto label
+			break
 		}
 		age, err2 := strconv.Atoi(s[1])
 		if err2 != nil {
@@ -64,5 +59,4 @@ func main() {
 		fmt.Println("Студент добавлен")
 		index++
 	}
-label:
 }
