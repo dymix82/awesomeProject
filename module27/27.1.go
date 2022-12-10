@@ -17,14 +17,19 @@ type Student struct { // Описываем структуру
 	grade int
 }
 
+var StudentName = make(map[int]*Student)
+
 func newStudent(name string, age int, grade int) *Student { //Функция добавления данных в структуру
 	p := Student{name: name,
 		age:   age,
 		grade: grade}
 	return &p
 }
+func (s Student) get() string {
+	return s.name + " " + strconv.Itoa(s.age) + " " + strconv.Itoa(s.grade)
+}
+
 func main() {
-	StudentName := make(map[int]*Student)
 	fmt.Println("Введите студентов построчно в формате имя возраст курс через пробел, курс от 1 до 5")
 	index := 1
 	for {
@@ -35,7 +40,7 @@ func main() {
 		if err == io.EOF { // Выходим и печатаем список студентов
 			fmt.Println("Студенты из хранилища:")
 			for _, value := range StudentName {
-				fmt.Println(value.name, value.age, value.grade)
+				fmt.Println(value.get())
 			}
 			break
 		}
