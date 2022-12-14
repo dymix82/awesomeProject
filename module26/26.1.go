@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
-	if file2 != "null " {
+	if file2 != "null" {
 		ResArray := []string{string(strFile1), string(strFile2)}
 		Result = strings.Join(ResArray, "\n")
 	} else {
