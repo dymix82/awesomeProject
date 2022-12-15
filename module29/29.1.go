@@ -13,7 +13,6 @@ func main() {
 	fmt.Println("Введите число , если хотите остановиться введите 'стоп'")
 	for {
 		fmt.Scan(&input)
-		//	wg.Add(2)
 		if input == "стоп" {
 			break
 		}
