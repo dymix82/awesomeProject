@@ -12,7 +12,7 @@ func New() Storage {
 	return st
 }
 
-func (st Storage) Get(name string) *student.Student {
+func (st Storage) Get(name string) *student.Student { // Метод get
 	return st[name]
 }
 func (st Storage) Put(s *student.Student) { // Метод put

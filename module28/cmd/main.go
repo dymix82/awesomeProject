@@ -13,15 +13,15 @@ import (
 
 func main() {
 	fmt.Println("Введите студентов построчно в формате имя возраст курс через пробел, курс от 1 до 5")
-	st := storage.New()
+	storage := storage.New()
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		text, err := reader.ReadString('\n')
 		text = strings.TrimSpace(text)
 		s := strings.Split(text, " ")
 		if err == io.EOF { // Выходим и печатаем список студентов
-			for n := range st {
-				s := st.Get(n)
+			for n := range storage {
+				s := storage.Get(n)
 				fmt.Println(s.Name(), s.Age(), s.Grade())
 			}
 			break
@@ -47,8 +47,8 @@ func main() {
 			fmt.Println("Введите студентов построчно в формате имя возраст курс через пробел, курс от 1 до 5")
 			continue
 		}
-		sm := student.New(s[0], Age, grade)
-		st.Put(sm)
+		NewStudent := student.New(s[0], Age, grade)
+		storage.Put(NewStudent)
 		fmt.Println("Студент добавлен")
 		//	index++
 	}

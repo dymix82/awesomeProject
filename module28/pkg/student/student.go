@@ -13,14 +13,14 @@ func New(n string, a, g int) *Student {
 	return &s
 }
 
-func (s Student) Name() string {
+func (s Student) Name() string { // Фукция по возвращению имени
 	return s.name
 }
 
-func (s Student) Age() int {
+func (s Student) Age() int { // Фукция по возвращению возраста
 	return s.age
 }
 
-func (s Student) Grade() int {
+func (s Student) Grade() int { // Фукция по возвращению курс
 	return s.grade
 }
