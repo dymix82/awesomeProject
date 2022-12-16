@@ -19,6 +19,7 @@ func main() {
 		value, err := strconv.Atoi(input)
 		if err != nil {
 			fmt.Println("Это не число, попробуйте ввести число еще раз")
+			continue
 		}
 		go sqrt(value, ch1)
 		value2 := <-ch1
