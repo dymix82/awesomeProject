@@ -58,12 +58,12 @@ var storage map[int]*User
 func main() {
 	storage = make(map[int]*User)
 	r := chi.NewRouter()
-	r.Method("GET", "/GetAll", Handler(GetAll))
-	r.Method("POST", "/create", Handler(post))
-	r.Method("GET", "/friends/", Handler(listFriends))
-	r.Method("POST", "/make_friends", Handler(makeFriends))
-	r.Method("DELETE", "/user", Handler(deleteUser))
-	r.Method("PUT", "/{id}", Handler(updateAge))
+	//	r.Method("GET", "/GetAll", Handler(GetAll))             // Вывод всех пользователей для дебага
+	r.Method("POST", "/create", Handler(post))              // Создание пользоватей
+	r.Method("GET", "/friends/", Handler(listFriends))      // Вывод всех друзей
+	r.Method("POST", "/make_friends", Handler(makeFriends)) // Обработчик запросов в дружбу
+	r.Method("DELETE", "/user", Handler(deleteUser))        // Удаление пользователя
+	r.Method("PUT", "/{id}", Handler(updateAge))            // Обновление возроста
 	http.ListenAndServe(":8080", r)
 }
 
@@ -76,12 +76,12 @@ func (u *User) addFriend(id int) error {
 	return nil
 }
 
-func GetAll(w http.ResponseWriter, r *http.Request) error {
-	bs, _ := json.Marshal(storage)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(bs))
-	return nil
-}
+//	func GetAll(w http.ResponseWriter, r *http.Request) error {
+//		bs, _ := json.Marshal(storage)
+//		w.WriteHeader(http.StatusOK)
+//		w.Write([]byte(bs))
+//		return nil
+//	}
 func post(w http.ResponseWriter, r *http.Request) error {
 	uid += 1
 	content, err := ioutil.ReadAll(r.Body)
