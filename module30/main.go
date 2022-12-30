@@ -188,8 +188,13 @@ func updateAge(w http.ResponseWriter, r *http.Request) error {
 		return errors.New("no such user")
 	}
 	newAge, _ := strconv.Atoi(rep.Source)
-	storage[id].Age = newAge
-	fmt.Fprintf(w, "Age of user %v is update to %+v\n", id, newAge)
+	if newAge > 0 {
+		storage[id].Age = newAge
+		fmt.Fprintf(w, "Age of user %v is update to %+v\n", id, newAge)
+	} else {
+		return errors.New("something's wrong with his age")
+	}
+
 	render.Status(r, http.StatusOK)
 	return nil
 }
