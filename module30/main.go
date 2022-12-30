@@ -52,7 +52,6 @@ func indexOf(element int, data []int) int {
 	return -1 //not found.
 }
 
-var u *User
 var storage map[int]*User
 
 func main() {
