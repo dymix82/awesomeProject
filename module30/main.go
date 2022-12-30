@@ -101,7 +101,7 @@ func post(w http.ResponseWriter, r *http.Request) error {
 	storage[uid] = &u
 	w.Write([]byte("User was created " + u.Name + "\n"))
 
-	fmt.Println(storage)
+	//	fmt.Println(storage)
 	render.Status(r, http.StatusCreated)
 	return nil
 }
