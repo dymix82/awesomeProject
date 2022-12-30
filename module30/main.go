@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/slices"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -16,9 +16,8 @@ type Handler func(w http.ResponseWriter, r *http.Request) error
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := h(w, r); err != nil {
-		// handle returned error here.
 		w.WriteHeader(500)
-		w.Write([]byte("empty or invalid id"))
+		w.Write([]byte("empty or invalid id\n"))
 	}
 }
 
@@ -37,9 +36,20 @@ type FriendRequest struct {
 type delRequest struct {
 	Source string `json:"source_id"`
 }
+type AgeChange struct {
+	Source string `json:"new age"`
+}
 
 func RemoveIndex(s []int, index int) []int {
 	return append(s[:index], s[index+1:]...)
+}
+func indexOf(element int, data []int) int {
+	for k, v := range data {
+		if element == v {
+			return k
+		}
+	}
+	return -1 //not found.
 }
 
 var u *User
@@ -53,10 +63,12 @@ func main() {
 	r.Method("GET", "/friends/", Handler(listFriends))
 	r.Method("POST", "/make_friends", Handler(makeFriends))
 	r.Method("DELETE", "/user", Handler(deleteUser))
+	r.Method("PUT", "/{id}", Handler(updateAge))
 	http.ListenAndServe(":8080", r)
 }
+
 func (u *User) addFriend(id int) error {
-	if _, ok := storage[id]; !ok {
+	if _, ok := storage[u.Id]; !ok {
 		return errors.New("no such user")
 	}
 	u.Friends = append(u.Friends, storage[id].Id)
@@ -66,7 +78,6 @@ func (u *User) addFriend(id int) error {
 
 func GetAll(w http.ResponseWriter, r *http.Request) error {
 	bs, _ := json.Marshal(storage)
-	//	fmt.Println(string(bs))
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(bs))
 	return nil
@@ -92,7 +103,6 @@ func post(w http.ResponseWriter, r *http.Request) error {
 
 	fmt.Println(storage)
 	render.Status(r, http.StatusCreated)
-	//render.DefaultResponder(w, r, storage)
 	return nil
 }
 
@@ -103,11 +113,14 @@ func listFriends(w http.ResponseWriter, r *http.Request) error {
 	}
 	id, err := strconv.Atoi(idQuery)
 	lS := len(storage)
-	log.Debugln(lS, id)
 	if err != nil || id > lS {
 		return errors.New(idQuery)
 	}
-	Fr, _ := json.Marshal(storage[id].Friends)
+	out := make(map[int]*User)
+	for i, vol := range storage[id].Friends {
+		out[i] = storage[vol]
+	}
+	Fr, _ := json.Marshal(out)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(Fr))
 	return nil
@@ -119,15 +132,25 @@ func makeFriends(w http.ResponseWriter, r *http.Request) error {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return nil
 	}
-	fmt.Fprintf(w, "Person: %+v\n", p)
 	data := &p
 	src, _ := strconv.Atoi(data.Source)
 	u, _ := storage[src]
 	tgt, _ := strconv.Atoi(data.Target)
-	storage[tgt].addFriend(storage[src].Id)
-	render.Status(r, http.StatusOK)
-	fmt.Fprintf(w, "%s i %s are friends now \n", u.Name, storage[tgt].Name)
-	return nil
+	if _, ok := storage[src]; !ok {
+		return errors.New("no such user")
+	}
+	if _, ok := storage[tgt]; !ok {
+		return errors.New("no such user")
+	}
+	idx := slices.Index(storage[src].Friends, tgt)
+	if idx == -1 {
+		storage[tgt].addFriend(storage[src].Id)
+		render.Status(r, http.StatusOK)
+		fmt.Fprintf(w, "%s and %s are friends now \n", u.Name, storage[tgt].Name)
+		return nil
+	} else {
+		return errors.New("no such user")
+	}
 }
 func deleteUser(w http.ResponseWriter, r *http.Request) error {
 	var p delRequest
@@ -136,15 +159,37 @@ func deleteUser(w http.ResponseWriter, r *http.Request) error {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return nil
 	}
-	data := &p
-	id, _ := strconv.Atoi(data.Source)
-	// fmt.Fprintf(w, "Person: %+v\n and number is %d", p, src)
-	// delete(storage, id)
-	for f := range u.Friends {
-		removeIndex := RemoveIndex(storage[f].Friends, id)
-		fmt.Fprintf(w, "Person: %+v\n  ", removeIndex)
+	req := &p
+	id, _ := strconv.Atoi(req.Source)
+	if _, ok := storage[id]; !ok {
+		return errors.New("no such user")
 	}
-	render.Status(r, http.StatusOK)
 	fmt.Fprintf(w, "%s is deleted\n", storage[id].Name)
+	for _, vol := range storage[id].Friends {
+		index := indexOf(id, storage[vol].Friends)
+		removeIndex := RemoveIndex(storage[vol].Friends, index)
+		storage[vol].Friends = removeIndex
+	}
+	delete(storage, id)
+	render.Status(r, http.StatusOK)
+	return nil
+}
+func updateAge(w http.ResponseWriter, r *http.Request) error {
+	var p AgeChange
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil
+	}
+	rep := &p
+	idString := chi.URLParam(r, "id")
+	id, _ := strconv.Atoi(idString)
+	if _, ok := storage[id]; !ok {
+		return errors.New("no such user")
+	}
+	newAge, _ := strconv.Atoi(rep.Source)
+	storage[id].Age = newAge
+	fmt.Fprintf(w, "Age of user %v is update to %+v\n", id, newAge)
+	render.Status(r, http.StatusOK)
 	return nil
 }
