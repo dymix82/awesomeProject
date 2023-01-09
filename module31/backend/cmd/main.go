@@ -77,9 +77,19 @@ func indexOf(element int, data []int) int {
 }
 
 var storage map[int]*User
+var db *sql.DB
 
 func main() {
 	storage = make(map[int]*User)
+	Psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", Psqlconn)
+	pingErr := db.Ping()
+	if pingErr != nil {
+		log.Fatal(pingErr)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
 	r := chi.NewRouter()
 	//	r.Method("GET", "/GetAll", Handler(GetAll))             // Вывод всех пользователей для дебага
 	r.Method("POST", "/create", Handler(post))              // Создание пользоватей
@@ -122,11 +132,6 @@ func post(w http.ResponseWriter, r *http.Request) error {
 	}
 	u.Id = uid
 	storage[uid] = &u
-	Psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", Psqlconn)
-	if err != nil {
-		log.Fatal(err)
-	}
 	_, err = db.Exec("INSERT INTO Users (Users) VALUES($1)", &u)
 	if err != nil {
 		log.Fatal(err)
