@@ -33,13 +33,24 @@ func main() {
 	http.HandleFunc("/", loadBalacer)
 	log.Fatal(http.ListenAndServe(":"+PORT, nil))
 }
+func ReadUserIP(req *http.Request) string {
+	IPAddress := req.Header.Get("X-Real-Ip")
+	if IPAddress == "" {
+		IPAddress = req.Header.Get("X-Forwarded-For")
+	}
+	if IPAddress == "" {
+		IPAddress = req.RemoteAddr
+	}
+	return IPAddress
+}
 
 // Given a request send it to the appropriate url
 func loadBalacer(res http.ResponseWriter, req *http.Request) {
 	// Get address of one backend server on which we forward request
 	url := getProxyURL()
 	// Log the request
-	logRequestPayload(url)
+	ip := ReadUserIP(req)
+	logRequestPayload(url, ip)
 	// Forward request to original request
 	serveReverseProxy(url, res, req)
 }
@@ -55,8 +66,8 @@ func getProxyURL() string {
 }
 
 // Log the redirect url
-func logRequestPayload(proxyURL string) {
-	log.Infof("proxy_url: %s\n", proxyURL)
+func logRequestPayload(proxyURL, userIP string) {
+	log.Infof("proxy_url: %s, userIP: %s", proxyURL, userIP)
 }
 
 // Serve a reverse proxy for a given url

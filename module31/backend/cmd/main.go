@@ -1,15 +1,27 @@
-package backend
+package main
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	_ "github.com/lib/pq"
 	"golang.org/x/exp/slices"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
+)
+
+const (
+	host     = "192.168.1.82"
+	port     = 5460
+	user     = "postgres"
+	password = "myPassword"
+	dbname   = "friendsdb"
 )
 
 type Handler func(w http.ResponseWriter, r *http.Request) error
@@ -40,6 +52,18 @@ type AgeChange struct {
 	Source string `json:"new age"`
 }
 
+func (a User) Value() (driver.Value, error) {
+	return json.Marshal(a)
+}
+
+func (a *User) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(b, &a)
+}
 func RemoveIndex(s []int, index int) []int {
 	return append(s[:index], s[index+1:]...)
 }
@@ -98,6 +122,15 @@ func post(w http.ResponseWriter, r *http.Request) error {
 	}
 	u.Id = uid
 	storage[uid] = &u
+	Psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", Psqlconn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = db.Exec("INSERT INTO Users (Users) VALUES($1)", &u)
+	if err != nil {
+		log.Fatal(err)
+	}
 	w.Write([]byte("User was created " + u.Name + "\n"))
 
 	//	fmt.Println(storage)
