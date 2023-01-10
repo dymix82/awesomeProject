@@ -8,19 +8,21 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 	"golang.org/x/exp/slices"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 const (
 	host     = "localhost"
-	port     = 5460
-	user     = "postgres"
-	password = "myPassword"
+	port     = 49153
+	user     = "db_user"
+	password = "jw8s0F4"
 	dbname   = "friendsdb"
 )
 
@@ -77,19 +79,38 @@ func indexOf(element int, data []int) int {
 }
 
 var storage map[int]*User
-var db *sql.DB
+var DB *sql.DB
 
-func main() {
-	storage = make(map[int]*User)
-	Psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", Psqlconn)
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatal(pingErr)
-	}
+func Connect() {
+	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	con, err := sql.Open("postgres", psqlconn)
 	if err != nil {
 		log.Fatal(err)
 	}
+	DB = con
+}
+
+func Close() {
+	DB.Close()
+}
+
+func checkUser(id int) bool {
+	Connect()
+	var result int
+	check := `select 1 from users where id = $1 limit 1;`
+	e := DB.QueryRow(check, id).Scan(&result)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+	if result == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+func main() {
+	storage = make(map[int]*User)
+
 	r := chi.NewRouter()
 	//	r.Method("GET", "/GetAll", Handler(GetAll))             // Вывод всех пользователей для дебага
 	r.Method("POST", "/create", Handler(post))              // Создание пользоватей
@@ -99,13 +120,66 @@ func main() {
 	r.Method("PUT", "/{id}", Handler(updateAge))            // Обновление возроста
 	http.ListenAndServe(":8080", r)
 }
+func UserFriendsToSlice(id int) []int {
+	Connect()
+	var result string
+	listFriends := `select users->'friends' from users where id = $1;`
+	e := DB.QueryRow(listFriends, id).Scan(&result)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
 
+	if result != "null" {
+		trimmed := strings.Trim(result, "[]")
+		strings := strings.Split(trimmed, ", ")
+		ints := make([]int, len(strings))
+		for i, s := range strings {
+			ints[i], _ = strconv.Atoi(s)
+		}
+		return ints
+	} else {
+		null := make([]int, 0)
+		return null
+	}
+}
 func (u *User) addFriend(id int) error {
-	if _, ok := storage[u.Id]; !ok {
+	if checkUser(id) != true {
 		return errors.New("no such user")
 	}
-	u.Friends = append(u.Friends, storage[id].Id)
+	u.Friends = append(u.Friends, id)
+	//	Connect()
+	//	addFriendQ := `UPDATE users SET users = users || jsonb_build_object('friends', $1::int[]) WHERE id = $2`
+	//	_, e := DB.Exec(addFriendQ, pq.Array(u.Friends), u.Id)
+	//	if e != nil {
+	//		fmt.Println(e.Error())
+	//	}
+	//	Close()
 	storage[id].Friends = append(storage[id].Friends, u.Id)
+	return nil
+}
+func MakeFriends(id1, id2 int) error {
+	if checkUser(id1) != true {
+		return errors.New("no such user")
+	}
+	if checkUser(id2) != true {
+		return errors.New("no such user")
+	}
+	Connect()
+	result1 := UserFriendsToSlice(id1)
+	result2 := UserFriendsToSlice(id2)
+	res1 := append(result2, id1)
+	res2 := append(result1, id2)
+	addFriendQ := `UPDATE users SET users = users || jsonb_build_object('friends', $1::int[]) WHERE id = $2`
+	_, e := DB.Exec(addFriendQ, pq.Array(res1), id2)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+	_, e2 := DB.Exec(addFriendQ, pq.Array(res2), id1)
+	if e2 != nil {
+		fmt.Println(e.Error())
+	}
+	Close()
+	fmt.Println(result1, result2)
 	return nil
 }
 
@@ -132,13 +206,13 @@ func post(w http.ResponseWriter, r *http.Request) error {
 	}
 	u.Id = uid
 	storage[uid] = &u
-	_, err = db.Exec("INSERT INTO Users (Users) VALUES($1)", &u)
+	Connect()
+	_, err = DB.Exec("INSERT INTO Users (Users) VALUES($1)", &u)
 	if err != nil {
 		log.Fatal(err)
 	}
+	Close()
 	w.Write([]byte("User was created " + u.Name + "\n"))
-
-	//	fmt.Println(storage)
 	render.Status(r, http.StatusCreated)
 	return nil
 }
@@ -173,17 +247,19 @@ func makeFriends(w http.ResponseWriter, r *http.Request) error {
 	src, _ := strconv.Atoi(data.Source)
 	u, _ := storage[src]
 	tgt, _ := strconv.Atoi(data.Target)
-	if _, ok := storage[src]; !ok {
+	if checkUser(src) != true {
 		return errors.New("no such user")
 	}
-	if _, ok := storage[tgt]; !ok {
+	if checkUser(tgt) != true {
 		return errors.New("no such user")
 	}
+
 	idx := slices.Index(storage[src].Friends, tgt)
 	if idx == -1 {
 		storage[tgt].addFriend(storage[src].Id)
 		render.Status(r, http.StatusOK)
 		fmt.Fprintf(w, "%s and %s are friends now \n", u.Name, storage[tgt].Name)
+		MakeFriends(src, tgt)
 		return nil
 	} else {
 		return errors.New("no such user")
@@ -198,7 +274,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) error {
 	}
 	req := &p
 	id, _ := strconv.Atoi(req.Source)
-	if _, ok := storage[id]; !ok {
+	if checkUser(id) != true {
 		return errors.New("no such user")
 	}
 	fmt.Fprintf(w, "%s is deleted\n", storage[id].Name)
@@ -208,6 +284,12 @@ func deleteUser(w http.ResponseWriter, r *http.Request) error {
 		storage[vol].Friends = removeIndex
 	}
 	delete(storage, id)
+	Connect()
+	deleteStmt := `delete from Users where id=$1`
+	_, e := DB.Exec(deleteStmt, id)
+	if e != nil {
+		errors.New("no such user")
+	}
 	render.Status(r, http.StatusOK)
 	return nil
 }
@@ -221,12 +303,18 @@ func updateAge(w http.ResponseWriter, r *http.Request) error {
 	rep := &p
 	idString := chi.URLParam(r, "id")
 	id, _ := strconv.Atoi(idString)
-	if _, ok := storage[id]; !ok {
+	if checkUser(id) != true {
 		return errors.New("no such user")
 	}
 	newAge, _ := strconv.Atoi(rep.Source)
 	if newAge > 0 {
-		storage[id].Age = newAge
+		Connect()
+		updateAge2 := `UPDATE users SET users = users || jsonb_build_object('age', $1::int) WHERE id = $2`
+		_, e := DB.Exec(updateAge2, newAge, id)
+		if e != nil {
+			fmt.Println(e.Error())
+		}
+		Close()
 		fmt.Fprintf(w, "Age of user %v is update to %+v\n", id, newAge)
 	} else {
 		return errors.New("something's wrong with his age")
