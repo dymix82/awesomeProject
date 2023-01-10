@@ -120,6 +120,35 @@ func main() {
 	r.Method("PUT", "/{id}", Handler(updateAge))            // Обновление возроста
 	http.ListenAndServe(":8080", r)
 }
+func MaxID() int {
+	Connect()
+	var result int
+	e := DB.QueryRow(`select max(id) from users`).Scan(&result)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+	return result
+}
+func NextVal() int {
+	Connect()
+	var result int
+	e := DB.QueryRow(`SELECT nextval('users_id_seq');`).Scan(&result)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+	return result
+}
+func GetName(id int) string {
+	Connect()
+	var result string
+	listFriends := `select users->'name' from users where id = $1;`
+	e := DB.QueryRow(listFriends, id).Scan(&result)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+	Close()
+	return result
+}
 func UserFriendsToSlice(id int) []int {
 	Connect()
 	var result string
@@ -179,7 +208,6 @@ func MakeFriends(id1, id2 int) error {
 		fmt.Println(e.Error())
 	}
 	Close()
-	fmt.Println(result1, result2)
 	return nil
 }
 
@@ -190,7 +218,7 @@ func MakeFriends(id1, id2 int) error {
 //		return nil
 //	}
 func post(w http.ResponseWriter, r *http.Request) error {
-	uid += 1
+	uid = MaxID() + 1
 	content, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -205,7 +233,6 @@ func post(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	}
 	u.Id = uid
-	storage[uid] = &u
 	Connect()
 	_, err = DB.Exec("INSERT INTO Users (Users) VALUES($1)", &u)
 	if err != nil {
@@ -223,17 +250,24 @@ func listFriends(w http.ResponseWriter, r *http.Request) error {
 		return errors.New(idQuery)
 	}
 	id, err := strconv.Atoi(idQuery)
-	lS := len(storage)
+	lS := MaxID()
 	if err != nil || id > lS {
 		return errors.New(idQuery)
 	}
-	out := make(map[int]*User)
-	for i, vol := range storage[id].Friends {
-		out[i] = storage[vol]
+	friendSlice := UserFriendsToSlice(id)
+	for _, vol := range friendSlice {
+		var result []byte
+		var res []byte
+		Connect()
+		err := DB.QueryRow("SELECT json_agg(users) FROM users where id = $1", vol).Scan(&result)
+		if err != nil {
+			log.Fatal(err)
+		}
+		res = append(res, result...)
+		w.Write([]byte(res))
 	}
-	Fr, _ := json.Marshal(out)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(Fr))
+	render.Status(r, http.StatusOK)
+
 	return nil
 }
 func makeFriends(w http.ResponseWriter, r *http.Request) error {
@@ -245,7 +279,7 @@ func makeFriends(w http.ResponseWriter, r *http.Request) error {
 	}
 	data := &p
 	src, _ := strconv.Atoi(data.Source)
-	u, _ := storage[src]
+	// u, _ := storage[src]
 	tgt, _ := strconv.Atoi(data.Target)
 	if checkUser(src) != true {
 		return errors.New("no such user")
@@ -254,12 +288,11 @@ func makeFriends(w http.ResponseWriter, r *http.Request) error {
 		return errors.New("no such user")
 	}
 
-	idx := slices.Index(storage[src].Friends, tgt)
+	idx := slices.Index(UserFriendsToSlice(src), tgt)
 	if idx == -1 {
-		storage[tgt].addFriend(storage[src].Id)
-		render.Status(r, http.StatusOK)
-		fmt.Fprintf(w, "%s and %s are friends now \n", u.Name, storage[tgt].Name)
+		fmt.Fprintf(w, "%s and %s are friends now \n", GetName(src), GetName(tgt))
 		MakeFriends(src, tgt)
+		render.Status(r, http.StatusOK)
 		return nil
 	} else {
 		return errors.New("no such user")
@@ -277,13 +310,13 @@ func deleteUser(w http.ResponseWriter, r *http.Request) error {
 	if checkUser(id) != true {
 		return errors.New("no such user")
 	}
-	fmt.Fprintf(w, "%s is deleted\n", storage[id].Name)
-	for _, vol := range storage[id].Friends {
-		index := indexOf(id, storage[vol].Friends)
-		removeIndex := RemoveIndex(storage[vol].Friends, index)
-		storage[vol].Friends = removeIndex
-	}
-	delete(storage, id)
+	//	fmt.Fprintf(w, "%s is deleted\n", GetName(id))
+	//	for _, vol := range storage[id].Friends {
+	//		index := indexOf(id, storage[vol].Friends)
+	//		removeIndex := RemoveIndex(storage[vol].Friends, index)
+	//		storage[vol].Friends = removeIndex
+	//	}
+	//	delete(storage, id)
 	Connect()
 	deleteStmt := `delete from Users where id=$1`
 	_, e := DB.Exec(deleteStmt, id)
