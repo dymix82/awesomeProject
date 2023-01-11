@@ -10,11 +10,12 @@ import (
 
 var serverCount = 0
 
-// These constant is used to define all backend servers
+// Константы для серверов бэкэнда, понимаю что хардкодить адреса плохо,
+// правельнее считывать настройки из файла, но работу с файлом показал в функционале логирования.
 const (
 	SERVER1 = "http://localhost:8080"
-	SERVER2 = "http://localhost:8080"
-	SERVER3 = "http://localhost:8080"
+	SERVER2 = "http://192.168.1.82:8080"
+	SERVER3 = "http://192.168.1.81:8080"
 	PORT    = "1338"
 )
 
@@ -29,7 +30,6 @@ func init() {
 }
 
 func main() {
-	// start server
 	http.HandleFunc("/", loadBalacer)
 	log.Fatal(http.ListenAndServe(":"+PORT, nil))
 }
@@ -44,38 +44,28 @@ func ReadUserIP(req *http.Request) string {
 	return IPAddress
 }
 
-// Given a request send it to the appropriate url
 func loadBalacer(res http.ResponseWriter, req *http.Request) {
-	// Get address of one backend server on which we forward request
 	url := getProxyURL()
-	// Log the request
 	ip := ReadUserIP(req)
 	logRequestPayload(url, ip)
-	// Forward request to original request
 	serveReverseProxy(url, res, req)
 }
 func getProxyURL() string {
 	var servers = []string{SERVER1, SERVER2, SERVER3}
 	server := servers[serverCount]
 	serverCount++
-	// reset the counter and start from the beginning
 	if serverCount >= len(servers) {
 		serverCount = 0
 	}
 	return server
 }
 
-// Log the redirect url
 func logRequestPayload(proxyURL, userIP string) {
 	log.Infof("proxy_url: %s, userIP: %s", proxyURL, userIP)
 }
 
-// Serve a reverse proxy for a given url
 func serveReverseProxy(target string, res http.ResponseWriter, req *http.Request) {
-	// parse the url
 	url, _ := url.Parse(target)
-	// create the reverse proxy
 	proxy := httputil.NewSingleHostReverseProxy(url)
-	// Note that ServeHttp is non blocking & uses a go routine under the hood
 	proxy.ServeHTTP(res, req)
 }
