@@ -2,7 +2,6 @@ package main
 
 import (
 	"backend/pkg/db"
-	"backend/pkg/friends"
 	"backend/pkg/user"
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
@@ -27,11 +26,11 @@ func main() {
 
 	r := chi.NewRouter()
 	//	r.Method("GET", "/GetAll", Handler(GetAll))             // Вывод всех пользователей для дебага
-	r.Method("POST", "/create", Handler(post))                      // Создание пользоватей
-	r.Method("GET", "/friends/", Handler(friends.ListFriends))      // Вывод всех друзей
-	r.Method("POST", "/make_friends", Handler(friends.MakeFriends)) // Обработчик запросов в дружбу
-	r.Method("DELETE", "/user", Handler(user.DeleteUser))           // Удаление пользователя
-	r.Method("PUT", "/{id}", Handler(user.UpdateAge))               // Обновление возроста
+	r.Method("POST", "/create", Handler(post))                   // Создание пользоватей
+	r.Method("GET", "/friends/", Handler(user.ListFriends))      // Вывод всех друзей
+	r.Method("POST", "/make_friends", Handler(user.MakeFriends)) // Обработчик запросов в дружбу
+	r.Method("DELETE", "/user", Handler(user.DeleteUser))        // Удаление пользователя
+	r.Method("PUT", "/{id}", Handler(user.UpdateAge))            // Обновление возроста
 	http.ListenAndServe(":8080", r)
 }
 

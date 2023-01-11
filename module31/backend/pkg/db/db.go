@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	host     = "localhost"
+	host     = "host.docker.internal"
 	port     = 49153
 	user     = "db_user"
 	password = "jw8s0F4"
