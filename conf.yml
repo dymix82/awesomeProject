@@ -1,0 +1,6 @@
+apport : 8080
+dbhost : host.docker.internal
+dbport : 5432
+dbuser : db_user
+dbpassword : jw8s0F4
+dbname : friendsdb

@@ -22,7 +22,6 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	//	storage = make(map[int]*User)
 
 	r := chi.NewRouter()
 	//	r.Method("GET", "/GetAll", Handler(GetAll))             // Вывод всех пользователей для дебага
@@ -31,7 +30,7 @@ func main() {
 	r.Method("POST", "/make_friends", Handler(user.MakeFriends)) // Обработчик запросов в дружбу
 	r.Method("DELETE", "/user", Handler(user.DeleteUser))        // Удаление пользователя
 	r.Method("PUT", "/{id}", Handler(user.UpdateAge))            // Обновление возроста
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":"+db.Con.Apport, r)
 }
 
 func post(w http.ResponseWriter, r *http.Request) error {

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -9,16 +12,23 @@ import (
 )
 
 var serverCount = 0
+var Cfg1 Config
+var Con1 *Config
 
-// Константы для серверов бэкэнда, понимаю что хардкодить адреса плохо,
-// правельнее считывать настройки из файла, но работу с файлом показал в функционале логирования.
-const (
-	SERVER1 = "http://localhost:8080"
-	SERVER2 = "http://192.168.1.82:8080"
-	SERVER3 = "http://192.168.1.81:8080"
-	PORT    = "1338"
-)
+type Config struct {
+	Server1 string `yaml:"server1"`
+	Server2 string `yaml:"server2"`
+	Server3 string `yaml:"server3"`
+	Port    string `yaml:"port"`
+}
 
+func GetConf2(file string, cnf interface{}) error {
+	yamlFile, err := ioutil.ReadFile(file)
+	if err == nil {
+		err = yaml.Unmarshal(yamlFile, cnf)
+	}
+	return err
+}
 func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.InfoLevel)
@@ -27,11 +37,16 @@ func init() {
 		log.Fatal(err)
 	}
 	log.SetOutput(f)
+	if err := GetConf2("proxy_conf.yml", &Cfg1); err != nil {
+		log.Panicln(err)
+	}
+	Con1 = &Cfg1
+	fmt.Println(Con1)
 }
 
 func main() {
 	http.HandleFunc("/", loadBalacer)
-	log.Fatal(http.ListenAndServe(":"+PORT, nil))
+	log.Fatal(http.ListenAndServe(":"+Con1.Port, nil))
 }
 func ReadUserIP(req *http.Request) string {
 	IPAddress := req.Header.Get("X-Real-Ip")
@@ -51,7 +66,7 @@ func loadBalacer(res http.ResponseWriter, req *http.Request) {
 	serveReverseProxy(url, res, req)
 }
 func getProxyURL() string {
-	var servers = []string{SERVER1, SERVER2, SERVER3}
+	var servers = []string{Con1.Server1, Con1.Server2, Con1.Server3}
 	server := servers[serverCount]
 	serverCount++
 	if serverCount >= len(servers) {

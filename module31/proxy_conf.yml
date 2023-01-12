@@ -1,0 +1,4 @@
+server1: http://localhost:8080
+server2: http://localhost:8081
+server3: http://localhost:8082
+port: 1338

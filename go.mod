@@ -7,6 +7,7 @@ require (
 	github.com/go-chi/render v1.0.2
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/exp v0.0.0-20221229233502-02c3fc3b3eb4
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
 
 require (
