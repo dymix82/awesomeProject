@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -41,7 +40,6 @@ func init() {
 		log.Panicln(err)
 	}
 	Con1 = &Cfg1
-	fmt.Println(Con1)
 }
 
 func main() {
