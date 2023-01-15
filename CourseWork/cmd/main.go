@@ -27,7 +27,7 @@ func main() {
 		data.ImportCSV()
 	}
 	r := chi.NewRouter()
-	r.Method("GET", "/get/", Handler(listall)) // Вывод всех пользователей для дебага
+	r.Method("GET", "/get/", Handler(getCitybyID)) // Вывод всех пользователей для дебага
 	//	r.Method("POST", "/create", Handler(post))                      // Создание пользоватей
 	//	r.Method("GET", "/cities/", Handler(user.ListCities))           // Вывод всех друзей
 	//	r.Method("GET", "/make_friends", Handler(user.ListCitiesbyReg)) // Обработчик запросов в дружбу
@@ -35,15 +35,22 @@ func main() {
 	// r.Method("PUT", "/{id}", Handler(user.UpdatePop))               // Обновление возроста
 	http.ListenAndServe(":"+config.Con.Apport, r)
 }
-func listall(w http.ResponseWriter, r *http.Request) error {
+func getCitybyID(w http.ResponseWriter, r *http.Request) error {
 	idQuery := r.URL.Query().Get("id")
 	if idQuery == "" {
 		return errors.New(idQuery)
 	}
 	id, _ := strconv.Atoi(idQuery)
-	Fr, _ := json.Marshal(data.Storage[uint(id)])
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(Fr))
+	if _, ok := data.Storage[uint(id)]; ok {
+		Fr, _ := json.Marshal(data.Storage[uint(id)])
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(Fr))
+		return nil
+	} else {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("empty or invalid id\n"))
+		return nil
+	}
 	return nil
 }
 

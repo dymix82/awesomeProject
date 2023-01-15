@@ -35,3 +35,11 @@ func ImportCSV() {
 	}
 
 }
+
+//func FindbyReg(string) {
+//	for i, _ := range Storage {
+//		if v, found := m["pi"]; found {
+//			fmt.Println(v)
+//		}
+//	}
+//}
