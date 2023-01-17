@@ -31,7 +31,11 @@ func main() {
 	if *importCSV {
 		data.ImportCSV()
 	} else {
-		data.LoadDB()
+		if _, err := os.Stat("database.json"); err == nil {
+			data.LoadDB()
+		} else {
+			data.ImportCSV()
+		}
 	}
 	r := chi.NewRouter()
 	r.Method("GET", "/get/", Handler(handlers.GetCityby))       // Вывод городов в соотвествии с запросом

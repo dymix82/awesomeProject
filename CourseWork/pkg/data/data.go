@@ -2,7 +2,6 @@ package data
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gocarina/gocsv"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -50,7 +49,6 @@ func ImportCSV() { // Импортируем базу данных из CSV
 	for i, _ := range Cities {
 		id := Cities[i].Id
 		Storage[id] = Cities[i]
-		fmt.Println(Storage[id].Name)
 	}
 	Cid = MaxId(Storage)
 }

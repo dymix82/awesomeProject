@@ -49,3 +49,8 @@
 {"level":"info","msg":"Server Stopped","time":"2023-01-17T21:29:14+03:00"}
 {"level":"info","msg":"Server Exited Properly","time":"2023-01-17T21:29:14+03:00"}
 {"level":"info","msg":"Server Started","time":"2023-01-17T21:29:18+03:00"}
+{"level":"info","msg":"Server Stopped","time":"2023-01-17T21:52:46+03:00"}
+{"level":"info","msg":"Server Exited Properly","time":"2023-01-17T21:52:46+03:00"}
+{"level":"info","msg":"Server Started","time":"2023-01-17T22:12:41+03:00"}
+{"level":"info","msg":"Server Stopped","time":"2023-01-17T22:13:19+03:00"}
+{"level":"info","msg":"Server Exited Properly","time":"2023-01-17T22:13:19+03:00"}
