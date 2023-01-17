@@ -54,3 +54,10 @@
 {"level":"info","msg":"Server Started","time":"2023-01-17T22:12:41+03:00"}
 {"level":"info","msg":"Server Stopped","time":"2023-01-17T22:13:19+03:00"}
 {"level":"info","msg":"Server Exited Properly","time":"2023-01-17T22:13:19+03:00"}
+{"level":"info","msg":"Server Started","time":"2023-01-17T23:29:18+03:00"}
+{"level":"info","msg":"Server Stopped","time":"2023-01-17T23:32:09+03:00"}
+{"level":"info","msg":"Server Exited Properly","time":"2023-01-17T23:32:09+03:00"}
+{"level":"info","msg":"Server Started","time":"2023-01-17T23:32:11+03:00"}
+{"level":"info","msg":"Server Stopped","time":"2023-01-17T23:33:36+03:00"}
+{"level":"info","msg":"Server Exited Properly","time":"2023-01-17T23:33:36+03:00"}
+{"level":"info","msg":"Server Started","time":"2023-01-17T23:33:38+03:00"}

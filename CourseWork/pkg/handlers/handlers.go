@@ -92,26 +92,44 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 
 		switch k {
 		case "reg": // получение списка городов по указанному региону;
+			output := make([]byte, 0)
 			for _, va := range data.Storage {
 				if va.Region == v[0] {
 					Fr, _ := json.Marshal(va)
-					w.Write([]byte(Fr))
+					output = append(output, Fr...)
 				}
 			}
+			if len(output) > 0 {
+				w.Write([]byte(output))
+			} else {
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("Не найдено"))
+				return nil
+			}
 		case "dist": // получение списка городов по указанному округу;
+			output := make([]byte, 0)
 			for _, va := range data.Storage {
 				if va.District == v[0] {
 					Fr, _ := json.Marshal(va)
-					w.Write([]byte(Fr))
+					output = append(output, Fr...)
+
 				}
 			}
+			if len(output) > 0 {
+				w.Write([]byte(output))
+			} else {
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("Не найдено"))
+				return nil
+			}
+
 		case "id": // получение информации о городе по его id;
 			id, _ := strconv.Atoi(v[0])
 			if _, ok := data.Storage[uint(id)]; ok {
 				Fr, _ := json.Marshal(data.Storage[uint(id)])
 				w.Write([]byte(Fr))
 			} else {
-				w.WriteHeader(http.StatusInternalServerError)
+				w.WriteHeader(http.StatusNotFound)
 				w.Write([]byte("empty or invalid id\n"))
 				return nil
 			}
