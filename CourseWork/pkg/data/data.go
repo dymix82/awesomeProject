@@ -21,10 +21,23 @@ var Storage map[uint]*City
 var Cid uint
 
 func init() {
-	Cid = 1100
 	Storage = make(map[uint]*City)
 }
-func ImportCSV() {
+func MaxId(v map[uint]*City) uint { // Находим максимальный ID чтобы присвоить его счетчику при запуске
+	keys := make([]uint, 0, len(Storage))
+	for key := range Storage {
+		keys = append(keys, key)
+	}
+	for i := 0; i <= len(keys)-1; i++ {
+		for j := 0; j < len(keys)-1-i; j++ {
+			if keys[j] > keys[j+1] {
+				keys[j], keys[j+1] = keys[j+1], keys[j]
+			}
+		}
+	}
+	return keys[len(v)-1]
+}
+func ImportCSV() { // Импортируем базу данных из CSV
 	Cities := []*City{}
 	in, err := os.Open("cities.csv")
 	if err != nil {
@@ -39,39 +52,22 @@ func ImportCSV() {
 		Storage[id] = Cities[i]
 		fmt.Println(Storage[id].Name)
 	}
-
+	Cid = MaxId(Storage)
 }
 
-func LoadDB() {
+func LoadDB() { // Грузим базу данных из json
 	in, err := os.ReadFile("database.json")
 	if err != nil {
 		panic(err)
 	}
 	json.Unmarshal(in, &Storage)
+	Cid = MaxId(Storage)
 }
 
-func SaveDB() {
+func SaveDB() { // Записываем базу данных из json
 	database, err := json.Marshal(Storage)
 	err = os.WriteFile("database.json", database, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
-	//jsonFile, err := os.ReadFile("database.json")
-	//
-	//	if err != nil {
-	//		panic(err)
-	//	}
-
-	//	jsonData, err := json.Marshal(Storage)
-	//	jsonFile.Write(jsonData)
-	//	jsonFile.Close()
-	//	fmt.Println("JSON data written to ", jsonFile.Name())
 }
-
-//func FindbyReg(string) {
-//	for i, _ := range Storage {
-//		if v, found := m["pi"]; found {
-//			fmt.Println(v)
-//		}
-//	}
-//}

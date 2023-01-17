@@ -4,7 +4,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
-	"net/http"
 	"os"
 )
 
@@ -34,18 +33,4 @@ func init() {
 		log.Panicln(err)
 	}
 	Con = &Cfg
-}
-
-func LogRequestPayload(userIP string) {
-	//	log.Infof("proxy_url: %s, userIP: %s", proxyURL, userIP)
-}
-func ReadUserIP(req *http.Request) string {
-	IPAddress := req.Header.Get("X-Real-Ip")
-	if IPAddress == "" {
-		IPAddress = req.Header.Get("X-Forwarded-For")
-	}
-	if IPAddress == "" {
-		IPAddress = req.RemoteAddr
-	}
-	return IPAddress
 }

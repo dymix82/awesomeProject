@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"github.com/go-chi/chi/v5"
 	log "github.com/sirupsen/logrus"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 type Handler func(w http.ResponseWriter, r *http.Request) error
@@ -32,25 +34,36 @@ func main() {
 		data.LoadDB()
 	}
 	r := chi.NewRouter()
-	r.Method("GET", "/get/", Handler(handlers.GetCitybyID)) // Вывод всех пользователей для дебага
-	r.Method("POST", "/create", Handler(handlers.NewCity))  // Создание пользоватей
-	//	r.Method("GET", "/cities/", Handler(user.ListCities))           // Вывод всех друзей
-	//	r.Method("GET", "/make_friends", Handler(user.ListCitiesbyReg)) // Обработчик запросов в дружбу
-	r.Method("DELETE", "/city", Handler(handlers.DeleteCity)) // Удаление пользователя
-	r.Method("PUT", "/{id}", Handler(handlers.UpdatePop))     // Обновление возроста
-	http.ListenAndServe(":"+config.Con.Apport, r)
-	gr := make(chan struct{}, 1)
-	graceful(gr)
-	<-gr
-}
+	r.Method("GET", "/get/", Handler(handlers.GetCityby))       // Вывод городов в соотвествии с запросом
+	r.Method("POST", "/create", Handler(handlers.NewCity))      // Добовление городов
+	r.Method("DELETE", "/delete", Handler(handlers.DeleteCity)) // Удаление городов
+	r.Method("PUT", "/{id}", Handler(handlers.UpdatePop))       // Изменение населения города
+	srv := &http.Server{
+		Addr:    ":" + config.Con.Apport,
+		Handler: r,
+	}
 
-func graceful(ch chan<- struct{}) {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
 	go func() {
-		<-c
-		log.Println("Shutting down...")
-		data.SaveDB()
-		close(ch)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
 	}()
+	log.Print("Server Started")
+
+	<-done
+	log.Print("Server Stopped")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer func() {
+		data.SaveDB()
+		cancel()
+	}()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Server Shutdown Failed:%+v", err)
+	}
+	log.Print("Server Exited Properly")
 }
