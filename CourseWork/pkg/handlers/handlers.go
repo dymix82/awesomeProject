@@ -99,7 +99,7 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 					output = append(output, Fr...)
 				}
 			}
-			if len(output) > 0 {
+			if len(output) > 0 { // если ответ пустой то отдаем 404
 				w.Write([]byte(output))
 			} else {
 				w.WriteHeader(http.StatusNotFound)
@@ -115,7 +115,7 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 
 				}
 			}
-			if len(output) > 0 {
+			if len(output) > 0 { // если ответ пустой то отдаем 404
 				w.Write([]byte(output))
 			} else {
 				w.WriteHeader(http.StatusNotFound)
