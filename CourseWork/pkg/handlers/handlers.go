@@ -59,7 +59,7 @@ func UpdatePop(w http.ResponseWriter, r *http.Request) error { // обновле
 	} else {
 		return errors.New("Количиство жителей не может быть отрицательным")
 	}
-	w.Write([]byte("Population is changed in city:" + data.Storage[uint(id)].Name + "\n"))
+	w.Write([]byte("Population is changed in city: " + data.Storage[uint(id)].Name + "\n"))
 	render.Status(r, http.StatusOK)
 	return nil
 }
