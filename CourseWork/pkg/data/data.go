@@ -22,7 +22,9 @@ var Cid uint
 func init() {
 	Storage = make(map[uint]*City)
 }
-func MaxId(v map[uint]*City) uint { // Находим максимальный ID чтобы присвоить его счетчику при запуске
+
+// Находим максимальный ID чтобы присвоить его счетчику при запуске
+func MaxId(v map[uint]*City) uint {
 	keys := make([]uint, 0, len(Storage))
 	for key := range Storage {
 		keys = append(keys, key)
@@ -36,7 +38,9 @@ func MaxId(v map[uint]*City) uint { // Находим максимальный I
 	}
 	return keys[len(v)-1]
 }
-func ImportCSV() { // Импортируем базу данных из CSV
+
+// Импортируем базу данных из CSV
+func ImportCSV() {
 	Cities := []*City{}
 	in, err := os.Open("cities.csv")
 	if err != nil {
@@ -53,7 +57,8 @@ func ImportCSV() { // Импортируем базу данных из CSV
 	Cid = MaxId(Storage)
 }
 
-func LoadDB() { // Грузим базу данных из json
+// Грузим базу данных из json
+func LoadDB() {
 	in, err := os.ReadFile("database.json")
 	if err != nil {
 		panic(err)
@@ -62,7 +67,8 @@ func LoadDB() { // Грузим базу данных из json
 	Cid = MaxId(Storage)
 }
 
-func SaveDB() { // Записываем базу данных из json
+// Записываем базу данных из json
+func SaveDB() {
 	database, err := json.Marshal(Storage)
 	err = os.WriteFile("database.json", database, 0666)
 	if err != nil {

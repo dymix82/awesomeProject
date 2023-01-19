@@ -18,7 +18,8 @@ type delRequest struct {
 	Source string `json:"source_id"`
 }
 
-func NewCity(w http.ResponseWriter, r *http.Request) error { // добавление новой записи в список городов;
+// добавление новой записи в список городов
+func NewCity(w http.ResponseWriter, r *http.Request) error {
 	data.Cid++
 	content, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -40,7 +41,8 @@ func NewCity(w http.ResponseWriter, r *http.Request) error { // добавлен
 	return nil
 }
 
-func UpdatePop(w http.ResponseWriter, r *http.Request) error { // обновление информации о численности населения города по указанному id;
+// обновление информации о численности населения города по указанному id;
+func UpdatePop(w http.ResponseWriter, r *http.Request) error {
 	var p PopChange
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
@@ -64,7 +66,8 @@ func UpdatePop(w http.ResponseWriter, r *http.Request) error { // обновле
 	return nil
 }
 
-func DeleteCity(w http.ResponseWriter, r *http.Request) error { //удаление информации о городе по указанному id;
+// удаление информации о городе по указанному id;
+func DeleteCity(w http.ResponseWriter, r *http.Request) error {
 	var p delRequest
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
@@ -83,7 +86,8 @@ func DeleteCity(w http.ResponseWriter, r *http.Request) error { //удалени
 }
 func GetCityby(w http.ResponseWriter, r *http.Request) error {
 	params := r.URL.Query()
-	if len(params) != 1 { // Фильтр если послали запрос с несколькими параметрами
+	// Фильтр если послали запрос с несколькими параметрами
+	if len(params) != 1 {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Неправильно сформирован запрос"))
 		return nil
@@ -91,7 +95,8 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 	for k, v := range params {
 
 		switch k {
-		case "reg": // получение списка городов по указанному региону;
+		// получение списка городов по указанному региону;
+		case "reg":
 			output := make([]byte, 0)
 			for _, va := range data.Storage {
 				if va.Region == v[0] {
@@ -106,7 +111,8 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 				w.Write([]byte("Не найдено"))
 				return nil
 			}
-		case "dist": // получение списка городов по указанному округу;
+			// получение списка городов по указанному округу;
+		case "dist":
 			output := make([]byte, 0)
 			for _, va := range data.Storage {
 				if va.District == v[0] {
@@ -115,15 +121,16 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 
 				}
 			}
-			if len(output) > 0 { // если ответ пустой то отдаем 404
+			// если ответ пустой то отдаем 404
+			if len(output) > 0 {
 				w.Write([]byte(output))
 			} else {
 				w.WriteHeader(http.StatusNotFound)
 				w.Write([]byte("Не найдено"))
 				return nil
 			}
-
-		case "id": // получение информации о городе по его id;
+			// получение информации о городе по его id;
+		case "id":
 			id, _ := strconv.Atoi(v[0])
 			if _, ok := data.Storage[uint(id)]; ok {
 				Fr, _ := json.Marshal(data.Storage[uint(id)])
@@ -133,7 +140,8 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 				w.Write([]byte("empty or invalid id\n"))
 				return nil
 			}
-		case "pop": // получения списка городов по указанному диапазону численности населения;
+			// получения списка городов по указанному диапазону численности населения;
+		case "pop":
 			for _, va := range data.Storage {
 				if len(v) != 2 {
 					w.WriteHeader(http.StatusInternalServerError)
@@ -150,7 +158,8 @@ func GetCityby(w http.ResponseWriter, r *http.Request) error {
 					w.Write([]byte(Fr))
 				}
 			}
-		case "year": // получения списка городов по указанному диапазону года основания.
+			// получения списка городов по указанному диапазону года основания.
+		case "year":
 			for _, va := range data.Storage {
 				if len(v) != 2 {
 					w.WriteHeader(http.StatusInternalServerError)
